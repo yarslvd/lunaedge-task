@@ -37,13 +37,12 @@ const optionsDefault = [
 export const Select = ({
                          label = 'Label',
                          options = optionsDefault,
-                         optional = true,
+                         optional = false,
                          helpText = '',
                          disabled = false,
                          multiple = false
                        }: SelectProps) => {
   const [currentOptions, setCurrentOptions] = useState<string[]>([]);
-  // const [multipleOptions, setMultipleOptions] = useState<string[]>([]);
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const selectRef = useRef<HTMLDivElement>(null);
 

@@ -6,7 +6,7 @@ interface ButtonProps {
 }
 
 export const Button = ({children, size = 'base', variant = 'primary', disabled = false}: ButtonProps) => {
-  const baseStyles: string = 'flex gap-1 items-center';
+  const baseStyles: string = 'flex gap-1 items-center justify-center';
   const variantStyles: { [key: string]: string } = {
     primary: 'bg-indigo-800 text-white',
     outlined: 'bg-transparent border border-indigo-800 text-indigo-900',
