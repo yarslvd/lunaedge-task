@@ -1,7 +1,8 @@
-import {useEffect, useState} from "react";
+import {useCallback, useEffect, useState} from "react";
 import {FieldErrors, SubmitHandler, useForm} from "react-hook-form";
 import {toast, ToastContainer} from 'react-toastify';
 import axios from "axios";
+import {debounce} from "lodash";
 
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -10,12 +11,15 @@ import {Input} from "./components/Input";
 import {Button} from "./components/Button";
 
 type Inputs = {
-  firstName: string
-  lastName: string
+  firstName: string;
+  lastName: string;
+  pokemons: string[];
 }
 
 function App() {
-  const [pokemons, setPokemons] = useState<{ value: string, label: string }[]>([]);
+  const [pokemons, setPokemons] = useState<{ value: string, label: string, data?: any }[]>([]);
+  const [selectedPokemons, setSelectedPokemons] = useState([]);
+
   const {
     register,
     handleSubmit,
@@ -27,6 +31,16 @@ function App() {
   }, []);
 
   const onSubmit: SubmitHandler<Inputs> = (data) => {
+    if (selectedPokemons.length !== 3) {
+      return toast.error("You have to select 3 pokemons", {
+        position: toast.POSITION.TOP_CENTER
+      });
+    }
+    data.pokemons = [];
+    selectedPokemons.map((el, index) => {
+      axios.get(`https://pokeapi.co/api/v2/pokemon/${el}`).then((el) => data.pokemons.push(el.data));
+    });
+
     console.log(data);
   }
 
@@ -46,7 +60,29 @@ function App() {
         position: toast.POSITION.TOP_CENTER
       });
     }
-    console.log(errors);
+  }
+  const debouncedSearch = useCallback(
+    debounce(async (val: string) => {
+      try {
+        if (val === '') {
+          const response = await axios.get('https://pokeapi.co/api/v2/pokemon?limit=30');
+          constructList(response.data.results);
+        } else {
+          const response = await axios.get(`https://pokeapi.co/api/v2/pokemon/${val}`);
+          if (response?.data) {
+            setPokemons([{value: response.data.name, label: response.data.name, data: response.data}]);
+          } else setPokemons([]);
+        }
+      } catch (err: any) {
+        console.error('Error fetching data!', err);
+        if (err.response?.status === 404) setPokemons([]);
+      }
+    }, 500),
+    []
+  );
+
+  const handleSearch = (val: string) => {
+    debouncedSearch(val);
   }
 
   const validation = {
@@ -84,7 +120,14 @@ function App() {
           register={register}
           validationSchema={validation}
         />
-        <Select label='Select your team' options={pokemons} multiple/>
+        <Select
+          label='Select your team'
+          options={pokemons}
+          onChange={handleSearch}
+          setValue={setSelectedPokemons}
+          multiple
+          search
+        />
         <Button size='lg'>Confirm</Button>
       </form>
       <ToastContainer

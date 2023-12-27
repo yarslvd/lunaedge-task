@@ -2,13 +2,17 @@ import {useEffect, useRef, useState} from "react";
 
 import {Badge} from "./Badge";
 
+
 interface SelectProps {
   label: string;
-  options?: {value: string, label: string}[];
+  options?: { value: string, label: string }[];
   helpText?: string;
   optional?: boolean;
   disabled?: boolean;
   multiple?: boolean;
+  search?: boolean;
+  onChange?: (value: string) => void;
+  setValue?: any;
 }
 
 const optionsDefault = [
@@ -36,11 +40,14 @@ const optionsDefault = [
 
 export const Select = ({
                          label = 'Label',
-                         options = optionsDefault,
+                         options,
                          optional = false,
                          helpText = '',
                          disabled = false,
-                         multiple = false
+                         multiple = false,
+                         search = false,
+                         onChange,
+                         setValue
                        }: SelectProps) => {
   const [currentOptions, setCurrentOptions] = useState<string[]>([]);
   const [isOpen, setIsOpen] = useState<boolean>(false);
@@ -53,8 +60,29 @@ export const Select = ({
   const disabledStyles: string = 'disabled:bg-indigo-100 disabled:border-indigo-200 disabled:text-indigo-300 disabled:hover:outline-none';
   const invalidStyles: string = 'invalid:border invalid:border-red-500';
 
+  useEffect(() => {
+    setValue(currentOptions);
+  }, [currentOptions]);
+
+  useEffect(() => {
+    if (isOpen) {
+      document.addEventListener('mousedown', handleOutsideClick);
+    } else {
+      document.removeEventListener('mousedown', handleOutsideClick);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleOutsideClick);
+    };
+  }, [isOpen]);
+
   const findOption = (value: string) => {
     return currentOptions.includes(value);
+  };
+
+  const handleInputChange = (event: any) => {
+    const {value} = event.target;
+    if (onChange) onChange(value);
   };
 
   const handleClearClick = () => {
@@ -70,31 +98,17 @@ export const Select = ({
 
   const handleMultipleSelect = (e: any) => {
     const target: string = e?.target?.value || e;
-    console.log(target)
     if (multiple) {
       const find = findOption(target);
       if (find) {
         const filter = currentOptions.filter((el) => el !== target);
         setCurrentOptions(filter);
       } else setCurrentOptions([...currentOptions, target]);
-    }
-    else {
+    } else {
       setCurrentOptions([e.target.value]);
       setIsOpen(false);
     }
   }
-
-  useEffect(() => {
-    if (isOpen) {
-      document.addEventListener('mousedown', handleOutsideClick);
-    } else {
-      document.removeEventListener('mousedown', handleOutsideClick);
-    }
-
-    return () => {
-      document.removeEventListener('mousedown', handleOutsideClick);
-    };
-  }, [isOpen]);
 
   return (
     <div className="w-full min-w-[400px] flex flex-col gap-2">
@@ -110,15 +124,17 @@ export const Select = ({
           className={`${baseStyles} ${focusStyles} ${hoverStyles} ${disabledStyles} ${invalidStyles}`}
           aria-label='Select'
           onClick={() => setIsOpen(!isOpen)}
+          type='button'
           disabled={disabled}
         >
           <span className={`${currentOptions.length !== 0 && 'text-white'}`}>Select</span>
         </button>
         {multiple && currentOptions.length >= 1 ?
           <div
-            className='absolute flex gap-1 w-full mr-auto overflow-x-auto scrollbar-hide max-w-[calc(100%-5rem)] z-10 left-2 top top-1/2 -translate-y-1/2'>
+            className='absolute flex gap-1 mr-auto overflow-x-auto scrollbar-hide max-w-[calc(100%-5rem)] z-10 left-2 top top-1/2 -translate-y-1/2'>
             {currentOptions.map((el, index) => (
-              <Badge key={index} label={el.slice(0, 1).toUpperCase() + el.slice(1)} cross rounded handleClick={() => handleMultipleSelect(el)} />
+              <Badge key={index} label={el.slice(0, 1).toUpperCase() + el.slice(1)} cross rounded
+                     handleClick={() => handleMultipleSelect(el)}/>
             ))}
           </div> :
           <span className='absolute left-3 top top-1/2 -translate-y-1/2'>
@@ -135,8 +151,21 @@ export const Select = ({
           </button>
         }
         {
-          isOpen && <div className='absolute p-1 border border-stone-300 w-full z-10 bg-white rounded-lg max-h-60 mt-2'>
+          options && isOpen &&
+          <div className='absolute p-1 border border-stone-300 w-full z-10 bg-white rounded-lg max-h-60 mt-2'>
             <ul className='overflow-auto max-h-52 flex flex-col gap-1'>
+              {
+                search && <li className='flex'>
+                  <input
+                    type="text"
+                    className='w-full h-full p-2 border border-stone-300 rounded-[4px] outline-indigo-400'
+                    aria-label='Search'
+                    onInput={handleInputChange}
+                    disabled={disabled}
+                    placeholder='Search'
+                  />
+                </li>
+              }
               {options && options.map((el, index) => (
                 <li key={index} className='flex'>
                   <input type="checkbox" name={el.value} id={el.value} value={el.label} className='appearance-none peer'
@@ -146,7 +175,7 @@ export const Select = ({
                            findOption(el.label) ? 'bg-blue-200' : ''
                          }`}
                   >
-                    {el.label.slice(0, 1).toUpperCase() + el.label.slice(1)}
+                    {el?.label && el.label.slice(0, 1).toUpperCase() + el.label.slice(1)}
                   </label>
                 </li>
               ))}
