@@ -2,7 +2,6 @@ import {useEffect, useRef, useState} from "react";
 
 import {Badge} from "./Badge";
 
-
 interface SelectProps {
   label: string;
   options?: { value: string, label: string }[];

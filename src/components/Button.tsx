@@ -2,10 +2,11 @@ interface ButtonProps {
   children: React.ReactNode;
   size?: 'xs' | 'sm' | 'base' | 'lg' | 'xl';
   variant?: 'primary' | 'outlined' | 'text';
-  disabled?: boolean
+  disabled?: boolean;
+  onClick?: () => void;
 }
 
-export const Button = ({children, size = 'base', variant = 'primary', disabled = false}: ButtonProps) => {
+export const Button = ({children, size = 'base', variant = 'primary', disabled = false, onClick}: ButtonProps) => {
   const baseStyles: string = 'flex gap-1 items-center justify-center';
   const variantStyles: { [key: string]: string } = {
     primary: 'bg-indigo-800 text-white',
@@ -33,8 +34,11 @@ export const Button = ({children, size = 'base', variant = 'primary', disabled =
         : '#fff';
 
   return (
-    <button disabled={disabled}
-            className={`${baseStyles} ${variantStyles[variant]} ${sizeVariant[size]} ${hoverStyles[variant]} ${disabledStyles}`}>
+    <button
+      disabled={disabled}
+      className={`${baseStyles} ${variantStyles[variant]} ${sizeVariant[size]} ${hoverStyles[variant]} ${disabledStyles}`}
+      onClick={onClick}
+    >
       <StarSvg fill={svgStyles}/>
       <span>{children}</span>
       <ArrowSvg fill={svgStyles}/>

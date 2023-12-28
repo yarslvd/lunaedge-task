@@ -9,6 +9,8 @@ import 'react-toastify/dist/ReactToastify.css';
 import {Select} from "./components/Select";
 import {Input} from "./components/Input";
 import {Button} from "./components/Button";
+import {Modal} from "./components/Modal";
+import useModal from "./hooks/useModal";
 
 type Inputs = {
   firstName: string;
@@ -18,7 +20,8 @@ type Inputs = {
 
 function App() {
   const [pokemons, setPokemons] = useState<{ value: string, label: string, data?: any }[]>([]);
-  const [selectedPokemons, setSelectedPokemons] = useState([]);
+  const [selectedPokemons, setSelectedPokemons] = useState<string[]>([]);
+  const [submittedData, setSubmittedData] = useState({});
 
   const {
     register,
@@ -26,22 +29,28 @@ function App() {
     formState: {errors},
   } = useForm<Inputs>();
 
+  const {isOpen, toggle} = useModal();
+
   useEffect(() => {
     axios.get('https://pokeapi.co/api/v2/pokemon?limit=30').then((res) => constructList(res.data.results));
   }, []);
 
   const onSubmit: SubmitHandler<Inputs> = (data) => {
-    if (selectedPokemons.length !== 3) {
-      return toast.error("You have to select 3 pokemons", {
+    if (selectedPokemons.length !== 4) {
+      return toast.error("You have to select team of 4 pokemons", {
         position: toast.POSITION.TOP_CENTER
       });
     }
     data.pokemons = [];
     selectedPokemons.map((el, index) => {
-      axios.get(`https://pokeapi.co/api/v2/pokemon/${el}`).then((el) => data.pokemons.push(el.data));
+      axios.get(`https://pokeapi.co/api/v2/pokemon/${el}`).then((el) => {
+        data.pokemons.push(el.data)
+        if (index === 3) {
+          setSubmittedData(data);
+          toggle();
+        }
+      });
     });
-
-    console.log(data);
   }
 
   const constructList = (data: { name: string, url: string }[]) => {
@@ -63,6 +72,7 @@ function App() {
   }
   const debouncedSearch = useCallback(
     debounce(async (val: string) => {
+      val = val.toLowerCase();
       try {
         if (val === '') {
           const response = await axios.get('https://pokeapi.co/api/v2/pokemon?limit=30');
@@ -102,7 +112,7 @@ function App() {
   }
 
   return (
-    <div className='flex flex-col justify-center items-center mt-64'>
+    <div className='flex flex-col justify-center items-center h-screen'>
       <form
         className='w-full max-w-[400px] flex flex-col gap-4'
         onSubmit={handleSubmit(onSubmit, onError)}
@@ -135,6 +145,7 @@ function App() {
         closeOnClick
         autoClose={2000}
       />
+      <Modal isOpen={isOpen} toggle={toggle} data={submittedData} toast={toast}/>
     </div>
   )
 }

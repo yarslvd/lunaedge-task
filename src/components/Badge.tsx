@@ -56,6 +56,7 @@ export const Badge = ({
         onClick={handleClick}
         className='w-full h-full'
         aria-label='Remove option'
+        type='button'
       >
         <CrossSvg fill={`${badgeStyles[color]}`}/>
       </button>}
