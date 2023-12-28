@@ -113,6 +113,10 @@ function App() {
 
   return (
     <div className='flex flex-col justify-center items-center h-screen'>
+      <div className='max-w-[400px] my-10'>
+        <img src="https://cdn.pixabay.com/photo/2019/11/27/14/06/pokemon-4657023_960_720.png" alt="Pockemon Icon" className='w-32 h-32 m-auto'/>
+        <h1 className='text-4xl text-center font-bold'>POKEMON TEAM PICKER</h1>
+      </div>
       <form
         className='w-full max-w-[400px] flex flex-col gap-4'
         onSubmit={handleSubmit(onSubmit, onError)}
