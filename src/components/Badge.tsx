@@ -51,7 +51,7 @@ export const Badge = ({
   return (
     <div className={`${baseStyles} ${colorStyles[color]} ${roundedStyles} ${paddingStyles[paddingX]}`}>
       {badgeIcon && <div className={`w-1.5 h-1.5 rounded-full mr-1 ${badgeStyles[color]}`}/>}
-      <span>{label}</span>
+      <span className='whitespace-nowrap'>{label}</span>
       {cross && <button
         onClick={handleClick}
         className='w-full h-full'
