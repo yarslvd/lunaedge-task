@@ -14,7 +14,7 @@ interface SelectProps {
   setValue?: any;
 }
 
-const optionsDefault = [
+export const optionsDefault = [
   {value: 'dog', label: 'Dog'},
   {value: 'cat', label: 'Cat'},
   {value: 'cow', label: 'Cow'},
@@ -60,8 +60,10 @@ export const Select = ({
   const invalidStyles: string = 'invalid:border invalid:border-red-500';
 
   useEffect(() => {
-    setValue(currentOptions);
-  }, [currentOptions]);
+    if(setValue) {
+      setValue(currentOptions);
+    }
+  }, [currentOptions, setValue]);
 
   useEffect(() => {
     if (isOpen) {

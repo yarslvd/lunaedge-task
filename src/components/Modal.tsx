@@ -59,7 +59,7 @@ export const Modal = ({isOpen, toggle, data, toast}: ModalProps) => {
             <div className='w-full h-full flex flex-col gap-3'>
               {
                 data && data?.pokemons.map((el: any, index: number) => (
-                  <div key={index} className='flex h-full md:gap-12 gap-4'>
+                  <div key={index} className='flex h-full md:gap-12 gap-4 justify-center'>
                     <img src={el?.sprites?.front_default} alt={el.name}/>
                     <div className='flex flex-col justify-center'>
                       <span className='text-lg font-medium'>{el?.name.slice(0, 1).toUpperCase() + el?.name.slice(1)}</span>

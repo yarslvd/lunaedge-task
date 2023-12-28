@@ -1,6 +1,7 @@
 import type {Meta, StoryObj} from '@storybook/react';
 
-import {Select} from "../components/Select";
+import {Select, optionsDefault} from "../components/Select";
+let options = optionsDefault;
 
 const meta = {
   title: 'Example/Select',
@@ -21,6 +22,7 @@ export const Default: Story = {
     helpText: 'This is help text',
     optional: true,
     disabled: false,
+    options: optionsDefault
   },
   parameters: {
     docs: {
@@ -37,6 +39,7 @@ export const Disabled: Story = {
     helpText: 'This is help text',
     optional: true,
     disabled: true,
+    options: optionsDefault
   },
   parameters: {
     docs: {
@@ -53,7 +56,8 @@ export const MultipleOptions: Story = {
     helpText: 'This is help text',
     optional: true,
     disabled: false,
-    multiple: true
+    multiple: true,
+    options: optionsDefault
   },
   parameters: {
     docs: {
